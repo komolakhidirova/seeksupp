@@ -1,5 +1,5 @@
 const Page = () => {
-	return <main>Page</main>
+	return <main>Forum</main>
 }
 
 export default Page

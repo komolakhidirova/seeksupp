@@ -1,3 +1,5 @@
+import BottomBar from '@/components/BottomBar'
+import LeftSidebar from '@/components/LeftSidebar'
 import TopBar from '@/components/TopBar'
 import type { Metadata } from 'next'
 import { Bricolage_Grotesque } from 'next/font/google'
@@ -9,8 +11,8 @@ const bricolage = Bricolage_Grotesque({
 })
 
 export const metadata: Metadata = {
-	title: 'Converso',
-	description: 'Real-time AI Teaching Platform',
+	title: 'SeekSupp',
+	description: 'Forum of anonymous people seeking support.',
 }
 
 export default function RootLayout({
@@ -23,13 +25,12 @@ export default function RootLayout({
 			<body className={`${bricolage.variable} antialiased`}>
 				<TopBar />
 				<main className='flex flex-row'>
-					{/* <LeftSidebar /> */}
+					<LeftSidebar />
 					<section className='main-container'>
 						<div className='w-full max-w-4xl'>{children}</div>
 					</section>
-					{/* <RightSidebar /> */}
 				</main>
-				{/* <BottomBar /> */}
+				<BottomBar />
 			</body>
 		</html>
 	)
