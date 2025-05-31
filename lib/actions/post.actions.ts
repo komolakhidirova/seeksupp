@@ -34,13 +34,9 @@ export const getAllPosts = async ({
 }
 
 export const getUserById = async (userId: string) => {
-	try {
-		const { firstName, imageUrl } = await clerkClient.users.getUser(userId)
-		return { firstName, imageUrl }
-	} catch (error) {
-		console.error(`Error fetching Clerk user:`, error)
-		return null
-	}
+	const { firstName, imageUrl } = await clerkClient.users.getUser(userId)
+
+	return { firstName, imageUrl }
 }
 
 // export const getCompanion = async (id: string) => {
