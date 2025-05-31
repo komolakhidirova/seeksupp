@@ -12,8 +12,8 @@ interface Props {
 }
 
 const PostCard = async ({ id, text, anonym, authorId, createdAt }: Props) => {
-	//@ts-ignore
-	// const { firstName, imageUrl } = await getUserById(authorId)
+	// @ts-ignore
+	const { firstName, imageUrl } = await getUserById(authorId)
 
 	return (
 		<article className='flex w-full flex-col rounded-xl bg-sidebar p-7'>
@@ -23,9 +23,7 @@ const PostCard = async ({ id, text, anonym, authorId, createdAt }: Props) => {
 						{/* <Link href={`/profile/${author.id}`} className='relative h-11 w-11'> */}
 						<Link href='' className='relative h-11 w-11'>
 							<Image
-								src={
-									!anonym ? '/assets/user-dark.svg' : '/assets/user-dark.svg'
-								}
+								src={!anonym ? imageUrl : '/assets/user-dark.svg'}
 								alt='Profile Image'
 								fill
 								className='cursor-pointer rounded-full'
@@ -37,7 +35,7 @@ const PostCard = async ({ id, text, anonym, authorId, createdAt }: Props) => {
 					<div className='flex w-full flex-col'>
 						<Link href='' className='w-fit'>
 							<h4 className='cursor-pointer text-bold text-gray-500'>
-								{!anonym ? 'User' : 'User'}
+								{!anonym ? firstName : 'User'}
 							</h4>
 						</Link>
 
