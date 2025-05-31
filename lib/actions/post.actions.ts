@@ -19,13 +19,9 @@ export const createPost = async (formData: CreatePost) => {
 	return data[0]
 }
 
-export const getAllPosts = async ({
-	limit = 10,
-	page = 1,
-}: GetAllCompanions) => {
+export const getAllPosts = async () => {
 	const supabase = createSupabaseClient()
 	let query = supabase.from('posts').select()
-	query = query.range((page - 1) * limit, page * limit - 1)
 	const { data: posts, error } = await query
 
 	if (error) throw new Error(error.message)
