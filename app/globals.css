@@ -152,7 +152,7 @@ body {
 		@apply px-2 bg-black rounded-4xl flex items-center h-full aspect-square cursor-pointer;
 	}
 	.input {
-		@apply !border-black !bg-white focus-visible:!ring-0 focus-visible:!border-black !w-full;
+		@apply border-gray-400 !bg-white focus-visible:!ring-0 focus-visible:!border-black !w-full;
 	}
 	.rounded-border {
 		@apply rounded-4xl border border-black;
@@ -180,7 +180,7 @@ body {
 		@apply relative flex justify-start gap-4 rounded-lg p-4;
 	}
 	.post-card_bar {
-		@apply relative mt-2 w-0.5 grow rounded-full bg-neutral-300;
+		@apply relative mt-2 w-0.5 grow rounded-full bg-gray-300;
 	}
 	.btn-signin {
 		@apply border border-black rounded-4xl px-4 py-2.5 text-sm font-semibold flex items-center gap-2 cursor-pointer;
