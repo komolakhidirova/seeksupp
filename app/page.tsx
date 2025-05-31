@@ -1,5 +1,7 @@
+import { getAllPosts } from '@/lib/actions/post.actions'
+
 const Page = async () => {
-	// const posts = await getAllPosts({ limit: 10 })
+	const posts = await getAllPosts({ limit: 10 })
 
 	return (
 		<>
