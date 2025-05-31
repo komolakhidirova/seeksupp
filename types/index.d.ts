@@ -14,13 +14,9 @@ type Companion = Models.DocumentList<Models.Document> & {
 	bookmarked: boolean
 }
 
-interface CreateCompanion {
-	name: string
-	subject: string
-	topic: string
-	voice: string
-	style: string
-	duration: number
+interface CreatePost {
+	text: string
+	anonym: boolean
 }
 
 interface GetAllCompanions {

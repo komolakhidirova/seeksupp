@@ -21,6 +21,8 @@ import {
 	SelectValue,
 } from '@/components/ui/select'
 // import { createCompanion } from '@/lib/actions/companion.actions'
+import { createPost } from '@/lib/actions/post.actions'
+import { redirect } from 'next/navigation'
 import { Textarea } from './ui/textarea'
 
 const formSchema = z.object({
@@ -33,18 +35,18 @@ const PostForm = () => {
 		resolver: zodResolver(formSchema),
 		defaultValues: {
 			text: '',
-			anonym: false,
+			anonym: true,
 		},
 	})
 
 	const onSubmit = async (values: z.infer<typeof formSchema>) => {
-		// const companion = await createCompanion(values)
-		// if (companion) {
-		// 	redirect(`/companions/${companion.id}`)
-		// } else {
-		// 	console.log('Failed to create a companion')
-		// 	redirect('/')
-		// }
+		const post = await createPost(values)
+		if (post) {
+			redirect('/')
+		} else {
+			console.log('Failed to create a companion')
+			redirect('/posts/new')
+		}
 	}
 
 	return (

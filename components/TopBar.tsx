@@ -1,3 +1,4 @@
+import { SignInButton, SignedIn, SignedOut, UserButton } from '@clerk/nextjs'
 import Image from 'next/image'
 import Link from 'next/link'
 
@@ -11,7 +12,16 @@ const TopBar = () => {
 				</p>
 			</Link>
 			<div className='flex items-center gap-1'>
-				<div className='block '>Sign In</div>
+				<div className='block'>
+					<SignedOut>
+						<SignInButton>
+							<button className='btn-signin'>Sign In</button>
+						</SignInButton>
+					</SignedOut>
+					<SignedIn>
+						<UserButton />
+					</SignedIn>
+				</div>
 			</div>
 		</nav>
 	)
