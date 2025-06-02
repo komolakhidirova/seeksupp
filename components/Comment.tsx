@@ -76,7 +76,7 @@ const PostForm = (parentId: { parentId: string }) => {
 					control={form.control}
 					name='anonym'
 					render={({ field }) => (
-						<FormItem>
+						<FormItem className='max-sm:w-full'>
 							<FormLabel>Anonymity</FormLabel>
 							<FormControl>
 								<Select
