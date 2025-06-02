@@ -21,7 +21,11 @@ export const createPost = async (formData: CreatePost) => {
 
 export const getAllPosts = async () => {
 	const supabase = createSupabaseClient()
-	let query = supabase.from('posts').select()
+	let query = supabase
+		.from('posts')
+		.select()
+		.eq('parent_id', 'no')
+		.order('created_at', { ascending: false })
 	const { data: posts, error } = await query
 
 	if (error) throw new Error(error.message)
@@ -35,18 +39,15 @@ export const getUserById = async (userId: string) => {
 	return { firstName, imageUrl }
 }
 
-// export const getCompanion = async (id: string) => {
-// 	const supabase = createSupabaseClient()
+export const getPostById = async (id: string) => {
+	const supabase = createSupabaseClient()
 
-// 	const { data, error } = await supabase
-// 		.from('Companions')
-// 		.select()
-// 		.eq('id', id)
+	const { data, error } = await supabase.from('posts').select().eq('id', id)
 
-// 	if (error) return console.log(error)
+	if (error) return console.log(error)
 
-// 	return data[0]
-// }
+	return data[0]
+}
 
 export const getUserPosts = async (userId: string) => {
 	const supabase = createSupabaseClient()
@@ -54,8 +55,24 @@ export const getUserPosts = async (userId: string) => {
 		.from('posts')
 		.select()
 		.eq('author', userId)
+		.eq('parent_id', 'no')
+		.order('created_at', { ascending: false })
 
 	if (error) throw new Error(error.message)
+
+	return data
+}
+
+export const getComments = async (id: string) => {
+	const supabase = createSupabaseClient()
+
+	const { data, error } = await supabase
+		.from('posts')
+		.select()
+		.eq('parent_id', id)
+		.order('created_at', { ascending: false })
+
+	if (error) return console.log(error)
 
 	return data
 }

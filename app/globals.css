@@ -223,6 +223,12 @@ body {
 	.transcript-fade {
 		@apply pointer-events-none absolute bottom-0 left-0 right-0 h-40 max-sm:h-20 bg-gradient-to-t from-background via-[rgba(var(--background),0.9)] to-transparent z-10;
 	}
+	.comment-form {
+		@apply mt-10 flex items-center gap-4 border-y border-gray-400 py-5 max-sm:flex-col;
+	}
+	.comment-form_btn {
+		@apply rounded-3xl bg-primary px-8 py-2 text-white max-sm:w-full;
+	}
 }
 
 @layer utilities {

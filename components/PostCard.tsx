@@ -1,5 +1,5 @@
 // import { formatDateString } from '@/lib/utils'
-import { getUserById } from '@/lib/actions/post.actions'
+import { getComments, getUserById } from '@/lib/actions/post.actions'
 import Image from 'next/image'
 import Link from 'next/link'
 // import DeleteThread from '../forms/DeleteThread'
@@ -14,6 +14,7 @@ interface Props {
 
 const PostCard = async ({ id, text, anonym, authorId, createdAt }: Props) => {
 	const { firstName, imageUrl } = await getUserById(authorId)
+	const comments = await getComments(id)
 
 	return (
 		<article className='flex w-full flex-col rounded-xl bg-sidebar p-7'>
@@ -43,14 +44,14 @@ const PostCard = async ({ id, text, anonym, authorId, createdAt }: Props) => {
 
 						<div className=' mt-5 flex flex-col gat-3'>
 							<div className='flex gap-3.5'>
-								<Image
+								{/* <Image
 									src='/assets/heart-gray.svg'
 									alt='heart'
 									width={24}
 									height={24}
 									className='cursor-pointer object-contain'
-								/>
-								<Link href={`/thread/${id}`}>
+								/> */}
+								<Link href={`/posts/${id}`}>
 									<Image
 										src='/assets/reply.svg'
 										alt='reply'
@@ -59,7 +60,7 @@ const PostCard = async ({ id, text, anonym, authorId, createdAt }: Props) => {
 										className='cursor-pointer object-contain'
 									/>
 								</Link>
-								<Image
+								{/* <Image
 									src='/assets/repost.svg'
 									alt='repost'
 									width={24}
@@ -72,7 +73,7 @@ const PostCard = async ({ id, text, anonym, authorId, createdAt }: Props) => {
 									width={24}
 									height={24}
 									className='cursor-pointer object-contain'
-								/>
+								/> */}
 							</div>
 						</div>
 					</div>
@@ -86,6 +87,16 @@ const PostCard = async ({ id, text, anonym, authorId, createdAt }: Props) => {
 					isComment={isComment}
 				/> */}
 			</div>
+
+			{comments?.length! > 0 && (
+				<div className='ml-1 mt-3 flex items-center gap-2'>
+					<Link href={`/posts/${id}`}>
+						<p className='mt-1 text-subtle-medium text-gray-1'>
+							{comments?.length} repl{comments?.length! > 1 ? 'ies' : 'y'}
+						</p>
+					</Link>
+				</div>
+			)}
 		</article>
 	)
 }

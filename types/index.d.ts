@@ -17,6 +17,7 @@ type Companion = Models.DocumentList<Models.Document> & {
 interface CreatePost {
 	text: string
 	anonym: boolean
+	parent_id: string
 }
 
 interface GetAllCompanions {

@@ -31,38 +31,37 @@ const formSchema = z.object({
 	parent_id: z.string(),
 })
 
-const PostForm = () => {
+const PostForm = (parentId: { parentId: string }) => {
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
 			text: '',
 			anonym: true,
-			parent_id: 'no',
+			parent_id: parentId.parentId,
 		},
 	})
 
 	const onSubmit = async (values: z.infer<typeof formSchema>) => {
 		const post = await createPost(values)
-		if (post) {
+		if (!post) {
+			console.log('Failed to create a comment')
 			redirect('/')
 		} else {
-			console.log('Failed to create a post')
-			redirect('/posts/new')
+			redirect(`/posts/${parentId.parentId}`)
 		}
 	}
 
 	return (
 		<Form {...form}>
-			<form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
+			<form onSubmit={form.handleSubmit(onSubmit)} className='comment-form'>
 				<FormField
 					control={form.control}
 					name='text'
 					render={({ field }) => (
-						<FormItem>
-							<FormLabel>Share your thoughts</FormLabel>
+						<FormItem className='flex items-center gap-3 w-full'>
 							<FormControl>
 								<Textarea
-									placeholder='How do you feel today?'
+									placeholder='Comment...'
 									{...field}
 									className='input'
 								/>
@@ -98,8 +97,8 @@ const PostForm = () => {
 					)}
 				/>
 
-				<Button type='submit' className='w-full cursor-pointer bg-primary'>
-					Create Post
+				<Button type='submit' className='comment-form_btn'>
+					Reply
 				</Button>
 			</form>
 		</Form>
