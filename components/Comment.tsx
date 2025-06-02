@@ -47,6 +47,7 @@ const PostForm = (parentId: { parentId: string }) => {
 			console.log('Failed to create a comment')
 			redirect('/')
 		} else {
+			form.reset()
 			redirect(`/posts/${parentId.parentId}`)
 		}
 	}

@@ -22,23 +22,23 @@ const PostCard = async ({ id, text, anonym, authorId, createdAt }: Props) => {
 				<div className='flex w-full flex-1 flex-row gap-4'>
 					<div className='flex flex-col items-center'>
 						{/* <Link href={`/profile/${author.id}`} className='relative h-11 w-11'> */}
-						<Link href='' className='relative h-11 w-11'>
+						<div className='relative h-11 w-11'>
 							<Image
 								src={!anonym ? imageUrl : '/assets/user-dark.svg'}
 								alt='Profile Image'
 								fill
-								className='cursor-pointer rounded-full'
+								className='rounded-full'
 							/>
-						</Link>
+						</div>
 						<div className='post-card_bar' />
 					</div>
 
 					<div className='flex w-full flex-col'>
-						<Link href='' className='w-fit'>
-							<h4 className='cursor-pointer text-bold text-gray-500'>
+						<div className='w-fit'>
+							<h4 className='text-bold text-gray-500'>
 								{!anonym ? firstName : 'User'}
 							</h4>
-						</Link>
+						</div>
 
 						<p className='mt-2 text-small-regular text-light-2'>{text}</p>
 
