@@ -19,7 +19,7 @@ const Page = async ({ params }: PostSessionPageProps) => {
 			<div className='mt-7 '>
 				<Comment parentId={id} />
 			</div>
-			<div className='mt-10'>
+			<div className='mt-10 flex flex-col gap-10'>
 				{/* @ts-ignore */}
 				{comments.map(comment => (
 					<PostCard key={comment.id} {...comment} authorId={comment.author} />
