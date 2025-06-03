@@ -26,7 +26,7 @@ function DeletePost({ postId, currentUserId, authorId, parentId }: Props) {
 			className='cursor-pointer object-contain'
 			onClick={async () => {
 				await deletePost(postId)
-				router.push('/')
+				router.refresh()
 			}}
 		/>
 	)

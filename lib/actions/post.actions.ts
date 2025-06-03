@@ -77,7 +77,6 @@ export const getComments = async (id: string) => {
 	return data
 }
 
-//GPT
 async function fetchAllChildPosts(postId: string): Promise<any[]> {
 	const supabase = createSupabaseClient()
 	const { data: childPosts, error } = await supabase
@@ -132,4 +131,41 @@ export const deletePost = async (postId: string) => {
 	if (deleteError) {
 		throw new Error(deleteError.message)
 	}
+}
+
+export const editPost = async (postId: string, text: string) => {
+	const { userId } = await auth()
+	const supabase = createSupabaseClient()
+
+	// Получаем пост, чтобы проверить автора
+	const { data: post, error: fetchError } = await supabase
+		.from('posts')
+		.select('*')
+		.eq('id', postId)
+		.single()
+
+	if (fetchError || !post) {
+		throw new Error(fetchError?.message || 'Post not found')
+	}
+
+	// Проверка прав
+	if (post.author !== userId) {
+		throw new Error('Unauthorized: You are not the author of this post.')
+	}
+
+	// Обновляем текст
+	const { data, error: updateError } = await supabase
+		.from('posts')
+		.update({
+			text,
+			edited_at: new Date().toISOString(),
+		})
+		.eq('id', postId)
+		.select()
+
+	if (updateError || !data) {
+		throw new Error(updateError?.message || 'Failed to update the post')
+	}
+
+	return data[0]
 }
