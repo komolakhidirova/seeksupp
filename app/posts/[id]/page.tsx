@@ -1,6 +1,7 @@
 import Comment from '@/components/Comment'
 import PostCard from '@/components/PostCard'
 import { getComments, getPostById } from '@/lib/actions/post.actions'
+import { currentUser } from '@clerk/nextjs/server'
 
 interface PostSessionPageProps {
 	params: Promise<{ id: string }>
@@ -10,11 +11,17 @@ const Page = async ({ params }: PostSessionPageProps) => {
 	const { id } = await params
 	const post = await getPostById(id)
 	const comments = await getComments(id)
+	const user = await currentUser()
 
 	return (
 		<section className='relative '>
 			<div>
-				<PostCard key={post.id} {...post} authorId={post.author} />
+				<PostCard
+					key={post.id}
+					{...post}
+					authorId={post.author}
+					currentUser={user?.id}
+				/>
 			</div>
 			<div className='mt-7 '>
 				<Comment parentId={id} />
@@ -22,7 +29,12 @@ const Page = async ({ params }: PostSessionPageProps) => {
 			<div className='mt-10 flex flex-col gap-10'>
 				{/* @ts-ignore */}
 				{comments.map(comment => (
-					<PostCard key={comment.id} {...comment} authorId={comment.author} />
+					<PostCard
+						key={comment.id}
+						{...comment}
+						authorId={comment.author}
+						currentUser={user?.id}
+					/>
 				))}
 			</div>
 		</section>

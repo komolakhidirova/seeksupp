@@ -2,17 +2,26 @@
 import { getComments, getUserById } from '@/lib/actions/post.actions'
 import Image from 'next/image'
 import Link from 'next/link'
+import DeletePost from './DeletePost'
 // import DeleteThread from '../forms/DeleteThread'
 
 interface Props {
 	id: string
 	text: string
 	authorId: string
+	currentUser: string
 	createdAt: string
 	anonym: boolean
 }
 
-const PostCard = async ({ id, text, anonym, authorId, createdAt }: Props) => {
+const PostCard = async ({
+	id,
+	text,
+	anonym,
+	authorId,
+	currentUser,
+	createdAt,
+}: Props) => {
 	const { firstName, imageUrl } = await getUserById(authorId)
 	const comments = await getComments(id)
 
@@ -79,13 +88,12 @@ const PostCard = async ({ id, text, anonym, authorId, createdAt }: Props) => {
 					</div>
 				</div>
 
-				{/* <DeleteThread
-					threadId={JSON.stringify(id)}
-					currentUserId={currentUserId}
-					authorId={author.id}
-					parentId={parentId}
-					isComment={isComment}
-				/> */}
+				<DeletePost
+					postId={id}
+					currentUserId={currentUser}
+					authorId={authorId}
+					parentId=''
+				/>
 			</div>
 
 			{comments?.length! > 0 && (

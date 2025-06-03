@@ -76,3 +76,60 @@ export const getComments = async (id: string) => {
 
 	return data
 }
+
+//GPT
+async function fetchAllChildPosts(postId: string): Promise<any[]> {
+	const supabase = createSupabaseClient()
+	const { data: childPosts, error } = await supabase
+		.from('posts')
+		.select('*')
+		.eq('parent_id', postId)
+
+	if (error) throw new Error(error.message)
+
+	const descendants: any[] = []
+
+	for (const child of childPosts) {
+		const childDescendants = await fetchAllChildPosts(child.id)
+		descendants.push(child, ...childDescendants)
+	}
+
+	return descendants
+}
+
+export const deletePost = async (postId: string) => {
+	const { userId } = await auth()
+	const supabase = createSupabaseClient()
+
+	// Получаем основной пост
+	const { data: post, error: fetchError } = await supabase
+		.from('posts')
+		.select('*')
+		.eq('id', postId)
+		.single()
+
+	if (fetchError || !post) {
+		throw new Error(fetchError?.message || 'Post not found')
+	}
+
+	// Проверка: пользователь — автор?
+	if (post.author !== userId) {
+		throw new Error('Unauthorized: You are not the author of this post.')
+	}
+
+	// Получаем всех потомков
+	const childPosts = await fetchAllChildPosts(postId)
+
+	// Собираем все ID, включая основной
+	const allIds = [postId, ...childPosts.map(p => p.id)]
+
+	// Удаляем все посты одним запросом
+	const { error: deleteError } = await supabase
+		.from('posts')
+		.delete()
+		.in('id', allIds)
+
+	if (deleteError) {
+		throw new Error(deleteError.message)
+	}
+}

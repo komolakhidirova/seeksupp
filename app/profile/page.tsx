@@ -34,7 +34,12 @@ const Page = async () => {
 			</section>
 			<section className='mt-9 flex flex-col gap-10'>
 				{posts.map(post => (
-					<PostCard key={post.id} {...post} authorId={post.author} />
+					<PostCard
+						key={post.id}
+						{...post}
+						authorId={post.author}
+						currentUser={user.id}
+					/>
 				))}
 			</section>
 		</main>
