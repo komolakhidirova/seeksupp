@@ -16,14 +16,23 @@ const Page = async () => {
 			<section className='mt-10 flex flex-col gap-5'>
 				{activity.length > 0 ? (
 					<>
-						{activity.map(activity => (
-							<Link key={activity.id} href={`/posts/${activity.parent_id}`}>
-								<article className='activity-card'>
+						{activity.map(item => (
+							<Link
+								key={item.id}
+								href={
+									item.type === 'reply'
+										? `/posts/${item.parent_id}`
+										: `/posts/${item.post_id}`
+								}
+							>
+								<article className='activity-card flex items-center gap-3'>
 									<Image
 										src={
-											!activity.anonym
-												? activity.author.image
-												: '/assets/user-dark.svg'
+											item.type === 'reply'
+												? !item.anonym
+													? item.author.image
+													: '/assets/user-dark.svg'
+												: item.author.image
 										}
 										alt='Profile Picture'
 										width={20}
@@ -32,9 +41,15 @@ const Page = async () => {
 									/>
 									<p className='!text-small-regular text-light-1'>
 										<span className='mr-1 text-primary'>
-											{!activity.anonym ? activity.author.name : 'User'}
+											{item.type === 'reply'
+												? !item.anonym
+													? item.author.name
+													: 'User'
+												: item.author.name}
 										</span>{' '}
-										replied to your post
+										{item.type === 'reply'
+											? 'replied to your post'
+											: 'liked your post'}
 									</p>
 								</article>
 							</Link>

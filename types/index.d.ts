@@ -5,6 +5,30 @@
 //   accountId: string;
 // };
 
+type ActivityItem =
+	| {
+			id: string
+			type: 'reply'
+			created_at: string
+			parent_id: string
+			anonym: boolean
+			author: {
+				id: string
+				name: string | null
+				image: string
+			}
+	  }
+	| {
+			id: string
+			type: 'like'
+			post_id: string
+			author: {
+				id: string
+				name: string | null
+				image: string
+			}
+	  }
+
 type Companion = Models.DocumentList<Models.Document> & {
 	$id: string
 	name: string

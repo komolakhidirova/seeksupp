@@ -163,33 +163,36 @@ export const editPost = async (postId: string, text: string) => {
 	return data[0]
 }
 
-export const getActivity = async (userId: string) => {
+export const getActivity = async (userId: string): Promise<ActivityItem[]> => {
 	const supabase = createSupabaseClient()
 
 	const { data: userPosts, error: userPostsError } = await supabase
 		.from('posts')
 		.select('id')
 		.eq('author', userId)
-		.eq('parent_id', 'no')
 
 	if (userPostsError) throw userPostsError
 
+	const postIds = userPosts.map(post => post.id)
+
+	// Получаем ответы
 	const { data: repliesToUserPosts, error: repliesError } = await supabase
 		.from('posts')
 		.select('id, author, created_at, parent_id, anonym')
-		.in(
-			'parent_id',
-			userPosts.map(post => post.id)
-		)
+		.in('parent_id', postIds)
 		.neq('author', userId)
 
 	if (repliesError) throw repliesError
 
-	const repliesWithAuthors = await Promise.all(
+	const repliesWithAuthors: ActivityItem[] = await Promise.all(
 		repliesToUserPosts.map(async reply => {
 			const user = await clerkClient.users.getUser(reply.author)
 			return {
-				...reply,
+				id: reply.id,
+				type: 'reply',
+				created_at: reply.created_at,
+				parent_id: reply.parent_id,
+				anonym: reply.anonym,
 				author: {
 					id: reply.author,
 					name: user.firstName,
@@ -199,7 +202,35 @@ export const getActivity = async (userId: string) => {
 		})
 	)
 
-	return repliesWithAuthors
+	// Получаем лайки
+	const { data: allPostsWithLikes, error: likesError } = await supabase
+		.from('posts')
+		.select('id, likes')
+		.eq('author', userId)
+
+	if (likesError) throw likesError
+
+	const likesWithUsers: ActivityItem[] = []
+
+	for (const post of allPostsWithLikes) {
+		const likers = (post.likes || []).filter((id: string) => id !== userId)
+
+		for (const likerId of likers) {
+			const user = await clerkClient.users.getUser(likerId)
+			likesWithUsers.push({
+				id: `${post.id}-${likerId}`,
+				type: 'like',
+				post_id: post.id,
+				author: {
+					id: likerId,
+					name: user.firstName,
+					image: user.imageUrl,
+				},
+			})
+		}
+	}
+
+	return [...repliesWithAuthors, ...likesWithUsers]
 }
 
 export const getSubscriptionPosts = async (userId: string) => {
@@ -296,7 +327,7 @@ export const unlikePost = async (postId: string) => {
 export const checkLike = async (postId: string) => {
 	const supabase = createSupabaseClient()
 	const { userId } = await auth()
-	if (!userId) throw new Error('User not authenticated')
+	// if (!userId) throw new Error('User not authenticated')
 
 	const { data: post, error } = await supabase
 		.from('posts')
