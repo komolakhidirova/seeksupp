@@ -1,13 +1,13 @@
 import PostCard from '@/components/PostCard'
 import { SubscribeUser } from '@/components/SubscribeUser'
 
+import { getUserNoAnonPosts } from '@/lib/actions/post.actions'
 import {
 	addSubscription,
-	checkSubscriptionStatus,
+	checkSubscription,
 	getUserById,
-	getUserNoAnonPosts,
-	unsubscribe,
-} from '@/lib/actions/post.actions'
+	removeSubscription,
+} from '@/lib/actions/user.actions'
 import { currentUser } from '@clerk/nextjs/server'
 import Image from 'next/image'
 import { redirect } from 'next/navigation'
@@ -24,7 +24,7 @@ const Page = async ({ params }: PostSessionPageProps) => {
 	const user = await currentUser()
 	if (!user) redirect('/sign-in')
 
-	const isSubscribed = await checkSubscriptionStatus(user.id, id)
+	const isSubscribed = await checkSubscription(user.id, id)
 
 	return (
 		<main className='min-lg:w-3/4'>
@@ -46,7 +46,7 @@ const Page = async ({ params }: PostSessionPageProps) => {
 							userId={id}
 							initialStatus={isSubscribed}
 							onSubscribe={addSubscription}
-							onUnsubscribe={unsubscribe}
+							onUnsubscribe={removeSubscription}
 						/>
 					</div>
 				</div>

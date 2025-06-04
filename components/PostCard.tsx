@@ -1,5 +1,6 @@
 // import { formatDateString } from '@/lib/utils'
-import { getComments, getUserById } from '@/lib/actions/post.actions'
+import { getComments } from '@/lib/actions/post.actions'
+import { getUserById } from '@/lib/actions/user.actions'
 import PostCardClient from './PostCardClient'
 
 interface Props {
