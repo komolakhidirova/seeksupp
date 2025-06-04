@@ -1,5 +1,8 @@
-// import { formatDateString } from '@/lib/utils'
-import { getComments } from '@/lib/actions/post.actions'
+import {
+	checkLike,
+	getComments,
+	getLikesCount,
+} from '@/lib/actions/post.actions'
 import { getUserById } from '@/lib/actions/user.actions'
 import PostCardClient from './PostCardClient'
 
@@ -27,6 +30,11 @@ const PostCard = async ({
 	const { firstName, imageUrl } = await getUserById(authorId)
 	const comments = await getComments(id)
 
+	const [initialIsLiked, initialLikesCount] = await Promise.all([
+		checkLike(id),
+		getLikesCount(id),
+	])
+
 	return (
 		<PostCardClient
 			id={id}
@@ -40,6 +48,8 @@ const PostCard = async ({
 			commentsCount={comments?.length || 0}
 			parentId={parent_id}
 			editedAt={edited_at}
+			initialLikesCount={initialLikesCount}
+			initialIsLiked={initialIsLiked}
 		/>
 	)
 }

@@ -238,3 +238,120 @@ export const getSubscriptionPosts = async (userId: string) => {
 
 	return postsWithAuthors
 }
+
+export const likePost = async (postId: string) => {
+	const supabase = createSupabaseClient()
+	const { userId } = await auth()
+	if (!userId) throw new Error('User not authenticated')
+
+	// Get current likes array
+	const { data: post, error: fetchError } = await supabase
+		.from('posts')
+		.select('likes')
+		.eq('id', postId)
+		.single()
+
+	if (fetchError) throw new Error(fetchError.message)
+	if (!post) throw new Error('Post not found')
+
+	// Add user ID to likes array if not already present
+	const currentLikes = post.likes || []
+	if (!currentLikes.includes(userId)) {
+		const { error: updateError } = await supabase
+			.from('posts')
+			.update({ likes: [...currentLikes, userId] })
+			.eq('id', postId)
+
+		if (updateError) throw new Error(updateError.message)
+	}
+}
+
+export const unlikePost = async (postId: string) => {
+	const supabase = createSupabaseClient()
+	const { userId } = await auth()
+	if (!userId) throw new Error('User not authenticated')
+
+	// Get current likes array
+	const { data: post, error: fetchError } = await supabase
+		.from('posts')
+		.select('likes')
+		.eq('id', postId)
+		.single()
+
+	if (fetchError) throw new Error(fetchError.message)
+	if (!post) throw new Error('Post not found')
+
+	// Remove user ID from likes array if present
+	const currentLikes = post.likes || []
+	if (currentLikes.includes(userId)) {
+		const { error: updateError } = await supabase
+			.from('posts')
+			.update({ likes: currentLikes.filter((id: string) => id !== userId) })
+			.eq('id', postId)
+
+		if (updateError) throw new Error(updateError.message)
+	}
+}
+
+export const checkLike = async (postId: string) => {
+	const supabase = createSupabaseClient()
+	const { userId } = await auth()
+	if (!userId) throw new Error('User not authenticated')
+
+	const { data: post, error } = await supabase
+		.from('posts')
+		.select('likes')
+		.eq('id', postId)
+		.single()
+
+	if (error) throw new Error(error.message)
+	if (!post) return false
+
+	return (post.likes || []).includes(userId)
+}
+
+export const getLikesCount = async (postId: string) => {
+	const supabase = createSupabaseClient()
+
+	const { data: post, error } = await supabase
+		.from('posts')
+		.select('likes')
+		.eq('id', postId)
+		.single()
+
+	if (error) throw new Error(error.message)
+	if (!post) return 0
+
+	return (post.likes || []).length
+}
+
+export const reportPost = async (postId: string) => {
+	const supabase = createSupabaseClient()
+	const { userId } = await auth()
+	if (!userId) throw new Error('User not authenticated')
+
+	const { data: post, error: fetchError } = await supabase
+		.from('posts')
+		.select('reports')
+		.eq('id', postId)
+		.single()
+
+	if (fetchError) throw new Error(fetchError.message)
+	if (!post) throw new Error('Post not found')
+
+	const currentReports = post.reports || []
+	if (currentReports.includes(userId)) return
+
+	const updatedReports = [...currentReports, userId]
+
+	const { error: updateError } = await supabase
+		.from('posts')
+		.update({ reports: updatedReports })
+		.eq('id', postId)
+
+	if (updateError) throw new Error(updateError.message)
+
+	if (updatedReports.length >= 3) {
+		await deletePost(postId)
+	}
+}
