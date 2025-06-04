@@ -1,20 +1,27 @@
 export const sidebarLinks = [
 	{
-		imgURL: '/assets/community.svg',
-		imgURLDark: '/assets/community-dark.svg',
+		imgURL: '/assets/home.svg',
+		imgURLDark: '/assets/home-dark.svg',
 		route: '/',
 		label: 'Forum',
+	},
+	{
+		imgURL: '/assets/community.svg',
+		imgURLDark: '/assets/community-dark.svg',
+		route: '/subscriptions',
+		label: 'Subscriptions',
 	},
 	// {
 	// 	imgURL: '/assets/search.svg',
 	// 	route: '/search',
 	// 	label: 'Search',
 	// },
-	// {
-	// 	imgURL: '/assets/heart.svg',
-	// 	route: '/activity',
-	// 	label: 'Activity',
-	// },
+	{
+		imgURL: '/assets/heart.svg',
+		imgURLDark: '/assets/heart-dark.svg',
+		route: '/activity',
+		label: 'Activity',
+	},
 	{
 		imgURL: '/assets/create.svg',
 		imgURLDark: '/assets/create-dark.svg',

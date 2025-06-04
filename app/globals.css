@@ -132,18 +132,14 @@ body {
 }
 
 @layer components {
-	/* threads */
 	.main-container {
 		@apply flex min-h-screen flex-1 flex-col items-center px-6 pb-10 pt-28 max-md:pb-32 sm:px-10;
 	}
 	.home-section {
 		@apply flex gap-4 justify-between items-start w-full max-lg:flex-col-reverse max-lg:items-center;
 	}
-	.companions-grid {
-		@apply flex flex-wrap gap-4 w-full max-md:justify-center;
-	}
-	.companion-card {
-		@apply flex flex-col rounded-4xl border border-black px-4 py-4 gap-5 w-full min-lg:max-w-[410px] justify-between;
+	.activity-card {
+		@apply flex items-center gap-2 rounded-md bg-sidebar px-7 py-4;
 	}
 	.subject-badge {
 		@apply bg-black text-white rounded-4xl text-sm px-2 py-1 capitalize;
@@ -158,9 +154,8 @@ body {
 		@apply rounded-4xl border border-black;
 	}
 	.btn-primary {
-		@apply bg-primary text-white rounded-xl cursor-pointer px-4 py-2 flex items-center gap-2;
+		@apply bg-primary text-white rounded-xl cursor-pointer px-4 py-2  items-center gap-2;
 	}
-	/* Threads */
 	.topbar {
 		@apply fixed top-0 z-30 flex w-full items-center justify-between bg-sidebar px-6 py-3;
 	}

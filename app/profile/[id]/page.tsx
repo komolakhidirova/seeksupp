@@ -1,5 +1,13 @@
 import PostCard from '@/components/PostCard'
-import { getUserById, getUserNoAnonPosts } from '@/lib/actions/post.actions'
+import { SubscribeUser } from '@/components/SubscribeUser'
+
+import {
+	addSubscription,
+	checkSubscriptionStatus,
+	getUserById,
+	getUserNoAnonPosts,
+	unsubscribe,
+} from '@/lib/actions/post.actions'
 import { currentUser } from '@clerk/nextjs/server'
 import Image from 'next/image'
 import { redirect } from 'next/navigation'
@@ -15,6 +23,8 @@ const Page = async ({ params }: PostSessionPageProps) => {
 
 	const user = await currentUser()
 	if (!user) redirect('/sign-in')
+
+	const isSubscribed = await checkSubscriptionStatus(user.id, id)
 
 	return (
 		<main className='min-lg:w-3/4'>
@@ -32,6 +42,12 @@ const Page = async ({ params }: PostSessionPageProps) => {
 						<p className='text-sm text-muted-foreground'>
 							{emailAddresses[0].emailAddress}
 						</p>
+						<SubscribeUser
+							userId={id}
+							initialStatus={isSubscribed}
+							onSubscribe={addSubscription}
+							onUnsubscribe={unsubscribe}
+						/>
 					</div>
 				</div>
 			</section>
