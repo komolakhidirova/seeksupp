@@ -268,23 +268,25 @@ const PostCardClient = ({
 					</div>
 					<div className='flex gap-3'>
 						{currentUser === authorId && !isEditing && (
-							<Image
-								src='/assets/edit.svg'
-								alt='edit'
-								width={18}
-								height={18}
-								className='cursor-pointer object-contain'
-								onClick={() => setIsEditing(true)}
-							/>
+							<>
+								<Image
+									src='/assets/edit.svg'
+									alt='edit'
+									width={18}
+									height={18}
+									className='cursor-pointer object-contain'
+									onClick={() => setIsEditing(true)}
+								/>
+								<Image
+									src='/assets/delete.svg'
+									alt='delete'
+									width={18}
+									height={18}
+									className='cursor-pointer object-contain'
+									onClick={handleDelete}
+								/>
+							</>
 						)}
-						<Image
-							src='/assets/delete.svg'
-							alt='delete'
-							width={18}
-							height={18}
-							className='cursor-pointer object-contain'
-							onClick={handleDelete}
-						/>
 					</div>
 				</div>
 
