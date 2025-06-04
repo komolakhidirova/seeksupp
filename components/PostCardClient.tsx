@@ -56,23 +56,29 @@ const PostCardClient = ({
 			<div className='flex items-start justify-between'>
 				<div className='flex w-full flex-1 flex-row gap-4'>
 					<div className='flex flex-col items-center'>
-						<div className='relative h-11 w-11'>
+						<Link
+							href={!anonym ? `/profile/${authorId}` : `/profile/user`}
+							className='relative h-11 w-11'
+						>
 							<Image
 								src={!anonym ? imageUrl : '/assets/user-dark.svg'}
 								alt='Profile Image'
 								fill
 								className='rounded-full'
 							/>
-						</div>
+						</Link>
 						<div className='post-card_bar' />
 					</div>
 
 					<div className='flex w-full flex-col'>
-						<div className='w-fit'>
+						<Link
+							href={!anonym ? `/profile/${authorId}` : `/profile/user`}
+							className='w-fit'
+						>
 							<h4 className='text-bold text-gray-500'>
 								{!anonym ? firstName : 'User'}
 							</h4>
-						</div>
+						</Link>
 
 						{isEditing ? (
 							<>

@@ -34,9 +34,10 @@ export const getAllPosts = async () => {
 }
 
 export const getUserById = async (userId: string) => {
-	const { firstName, imageUrl } = await clerkClient.users.getUser(userId)
+	const { firstName, imageUrl, emailAddresses } =
+		await clerkClient.users.getUser(userId)
 
-	return { firstName, imageUrl }
+	return { firstName, imageUrl, emailAddresses }
 }
 
 export const getPostById = async (id: string) => {
@@ -56,6 +57,21 @@ export const getUserPosts = async (userId: string) => {
 		.select()
 		.eq('author', userId)
 		.eq('parent_id', 'no')
+		.order('created_at', { ascending: false })
+
+	if (error) throw new Error(error.message)
+
+	return data
+}
+
+export const getUserNoAnonPosts = async (userId: string) => {
+	const supabase = createSupabaseClient()
+	const { data, error } = await supabase
+		.from('posts')
+		.select()
+		.eq('author', userId)
+		.eq('parent_id', 'no')
+		.eq('anonym', false)
 		.order('created_at', { ascending: false })
 
 	if (error) throw new Error(error.message)
