@@ -15,7 +15,7 @@ export const SubscribeUser = ({
 	onUnsubscribe,
 }: {
 	userId: string
-	initialStatus: boolean // Теперь принимает boolean
+	initialStatus: boolean
 	onSubscribe: (userId: string) => Promise<SubscriptionResponse>
 	onUnsubscribe: (userId: string) => Promise<SubscriptionResponse>
 }) => {
