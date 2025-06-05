@@ -6,7 +6,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 
-function LeftSidebar() {
+const LeftSidebar = () => {
 	const router = useRouter()
 	const pathname = usePathname()
 	// const { userId } = useAuth()

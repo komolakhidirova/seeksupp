@@ -5,7 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 
-function BottomBar() {
+const BottomBar = () => {
 	const router = useRouter()
 	const pathname = usePathname()
 

@@ -22,7 +22,6 @@ export const SubscribeUser = ({
 	const [isLoading, setIsLoading] = useState(false)
 	const [isSubscribed, setIsSubscribed] = useState(initialStatus)
 
-	// Синхронизируем состояние при изменении initialStatus
 	useEffect(() => {
 		setIsSubscribed(initialStatus)
 	}, [initialStatus])

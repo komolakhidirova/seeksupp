@@ -20,7 +20,6 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select'
-// import { createCompanion } from '@/lib/actions/companion.actions'
 import { createPost } from '@/lib/actions/post.actions'
 import { redirect } from 'next/navigation'
 import { Textarea } from './ui/textarea'

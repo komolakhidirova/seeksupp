@@ -2,16 +2,19 @@
 
 import { reportPost } from '@/lib/actions/post.actions'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
 const ReportPost = ({ id }: { id: string }) => {
 	const [showReportConfirm, setShowReportConfirm] = useState(false)
+	const router = useRouter()
 
 	const confirmReport = async () => {
 		setShowReportConfirm(false)
 		try {
 			await reportPost(id)
 			alert('Thank you. This post has been reported.')
+			router.refresh()
 		} catch (error) {
 			console.error('Failed to report the post:', error)
 		}
@@ -29,7 +32,7 @@ const ReportPost = ({ id }: { id: string }) => {
 			/>
 
 			{showReportConfirm && (
-				<div className='absolute right-0 top-7 z-50 w-64 border border-red-500 rounded-xl bg-white p-4 shadow-lg'>
+				<div className='absolute left-0 top-7 z-50 w-64 border border-red-500 rounded-xl bg-white p-4 shadow-lg'>
 					<h3 className='text-base font-semibold mb-2'>Report this post?</h3>
 					<p className='text-sm mb-4'>
 						Are you sure you want to report this post?

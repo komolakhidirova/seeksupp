@@ -5,11 +5,7 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
-interface Props {
-	id: string
-}
-
-const DeletePost = ({ id }: Props) => {
+const DeletePost = ({ id }: { id: string }) => {
 	const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
 	const router = useRouter()
 

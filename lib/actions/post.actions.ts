@@ -102,7 +102,7 @@ const fetchAllChildPosts = async (postId: string): Promise<any[]> => {
 	return descendants
 }
 
-export const deletePost = async (postId: string) => {
+export const deletePost = async (postId: string, force = false) => {
 	const { userId } = await auth()
 	const supabase = createSupabaseClient()
 	const { data: post, error: fetchError } = await supabase
@@ -114,7 +114,7 @@ export const deletePost = async (postId: string) => {
 	if (fetchError || !post) {
 		throw new Error(fetchError?.message || 'Post not found')
 	}
-	if (post.author !== userId) {
+	if (!force && post.author !== userId) {
 		throw new Error('Unauthorized: You are not the author of this post.')
 	}
 
@@ -275,7 +275,6 @@ export const likePost = async (postId: string) => {
 	const { userId } = await auth()
 	if (!userId) throw new Error('User not authenticated')
 
-	// Get current likes array
 	const { data: post, error: fetchError } = await supabase
 		.from('posts')
 		.select('likes')
@@ -285,7 +284,6 @@ export const likePost = async (postId: string) => {
 	if (fetchError) throw new Error(fetchError.message)
 	if (!post) throw new Error('Post not found')
 
-	// Add user ID to likes array if not already present
 	const currentLikes = post.likes || []
 	if (!currentLikes.includes(userId)) {
 		const { error: updateError } = await supabase
@@ -302,7 +300,6 @@ export const unlikePost = async (postId: string) => {
 	const { userId } = await auth()
 	if (!userId) throw new Error('User not authenticated')
 
-	// Get current likes array
 	const { data: post, error: fetchError } = await supabase
 		.from('posts')
 		.select('likes')
@@ -312,7 +309,6 @@ export const unlikePost = async (postId: string) => {
 	if (fetchError) throw new Error(fetchError.message)
 	if (!post) throw new Error('Post not found')
 
-	// Remove user ID from likes array if present
 	const currentLikes = post.likes || []
 	if (currentLikes.includes(userId)) {
 		const { error: updateError } = await supabase
@@ -383,6 +379,6 @@ export const reportPost = async (postId: string) => {
 	if (updateError) throw new Error(updateError.message)
 
 	if (updatedReports.length >= 3) {
-		await deletePost(postId)
+		await deletePost(postId, true)
 	}
 }
