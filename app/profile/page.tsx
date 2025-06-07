@@ -1,4 +1,4 @@
-import PostCard from '@/components/PostCard'
+import PostCard from '@/components/cards/PostCard'
 import { getUserPosts } from '@/lib/actions/post.actions'
 import { currentUser } from '@clerk/nextjs/server'
 import Image from 'next/image'

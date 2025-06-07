@@ -1,5 +1,5 @@
-import Comment from '@/components/Comment'
-import PostCard from '@/components/PostCard'
+import PostCard from '@/components/cards/PostCard'
+import Comment from '@/components/forms/Comment'
 import { getComments, getPostById } from '@/lib/actions/post.actions'
 import { currentUser } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'

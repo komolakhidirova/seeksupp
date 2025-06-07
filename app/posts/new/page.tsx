@@ -1,4 +1,4 @@
-import PostForm from '@/components/PostForm'
+import PostForm from '@/components/forms/PostForm'
 import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 

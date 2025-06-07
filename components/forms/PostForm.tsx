@@ -22,7 +22,7 @@ import {
 } from '@/components/ui/select'
 import { createPost } from '@/lib/actions/post.actions'
 import { redirect } from 'next/navigation'
-import { Textarea } from './ui/textarea'
+import { Textarea } from '../ui/textarea'
 
 const formSchema = z.object({
 	text: z.string().min(1, { message: 'Text is required' }),
@@ -30,38 +30,38 @@ const formSchema = z.object({
 	parent_id: z.string(),
 })
 
-const PostForm = (parentId: { parentId: string }) => {
+const PostForm = () => {
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
 			text: '',
 			anonym: true,
-			parent_id: parentId.parentId,
+			parent_id: 'no',
 		},
 	})
 
 	const onSubmit = async (values: z.infer<typeof formSchema>) => {
 		const post = await createPost(values)
-		if (!post) {
-			console.log('Failed to create a comment')
+		if (post) {
 			redirect('/')
 		} else {
-			form.reset()
-			redirect(`/posts/${parentId.parentId}`)
+			console.log('Failed to create a post')
+			redirect('/posts/new')
 		}
 	}
 
 	return (
 		<Form {...form}>
-			<form onSubmit={form.handleSubmit(onSubmit)} className='comment-form'>
+			<form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
 				<FormField
 					control={form.control}
 					name='text'
 					render={({ field }) => (
-						<FormItem className='flex items-center gap-3 w-full'>
+						<FormItem>
+							<FormLabel>Share your thoughts</FormLabel>
 							<FormControl>
 								<Textarea
-									placeholder='Comment...'
+									placeholder='How do you feel today?'
 									{...field}
 									className='input'
 								/>
@@ -75,7 +75,7 @@ const PostForm = (parentId: { parentId: string }) => {
 					control={form.control}
 					name='anonym'
 					render={({ field }) => (
-						<FormItem className='max-sm:w-full'>
+						<FormItem>
 							<FormLabel>Anonymity</FormLabel>
 							<FormControl>
 								<Select
@@ -97,8 +97,8 @@ const PostForm = (parentId: { parentId: string }) => {
 					)}
 				/>
 
-				<Button type='submit' className='comment-form_btn'>
-					Reply
+				<Button type='submit' className='w-full cursor-pointer bg-primary'>
+					Create Post
 				</Button>
 			</form>
 		</Form>

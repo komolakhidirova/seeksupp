@@ -1,4 +1,4 @@
-import AssistantComponent from '@/components/AssistantComponent'
+import AssistantComponent from '@/components/shared/AssistantComponent'
 
 const Page = () => {
 	return (

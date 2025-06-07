@@ -29,7 +29,7 @@ const ReportPost = ({ id }: { id: string }) => {
 			/>
 
 			{showReportConfirm && (
-				<div className='absolute left-0 top-7 z-50 w-64 border border-red-500 rounded-xl bg-white p-4 shadow-lg'>
+				<div className='absolute left-1/2 -translate-x-1/2 top-7 z-50 w-64 border border-red-500 rounded-xl bg-white p-4 shadow-lg'>
 					<h3 className='text-base font-semibold mb-2'>Report this post?</h3>
 					<p className='text-sm mb-4'>
 						Are you sure you want to report this post?

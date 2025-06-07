@@ -1,5 +1,5 @@
-import PostCard from '@/components/PostCard'
-import { SubscribeUser } from '@/components/SubscribeUser'
+import PostCard from '@/components/cards/PostCard'
+import { SubscribeUser } from '@/components/forms/SubscribeUser'
 
 import { getUserNoAnonPosts } from '@/lib/actions/post.actions'
 import {

@@ -1,4 +1,4 @@
-import PostCard from '@/components/PostCard'
+import PostCard from '@/components/cards/PostCard'
 import { getAllPosts } from '@/lib/actions/post.actions'
 import Link from 'next/link'
 

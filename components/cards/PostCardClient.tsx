@@ -4,10 +4,10 @@ import { formatDateString } from '@/lib/utils'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useState } from 'react'
-import DeletePost from './DeletePost'
-import EditPost from './EditPost'
-import LikePost from './LikePost'
-import ReportPost from './ReportPost'
+import DeletePost from '../forms/DeletePost'
+import EditPost from '../forms/EditPost'
+import LikePost from '../forms/LikePost'
+import ReportPost from '../forms/ReportPost'
 
 interface Props {
 	id: string
