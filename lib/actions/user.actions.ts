@@ -1,7 +1,8 @@
 'use server'
 
 import clerkClient from '@clerk/clerk-sdk-node'
-import { auth } from '@clerk/nextjs/server'
+import { auth, currentUser } from '@clerk/nextjs/server'
+import { redirect } from 'next/navigation'
 
 export const getUserById = async (userId: string) => {
 	const { firstName, imageUrl, emailAddresses } =
@@ -71,4 +72,30 @@ export const removeSubscription = async (subscriptionId: string) => {
 		message: 'Unsubscribed successfully',
 		newCount: updatedSubscriptions.length,
 	}
+}
+
+// Anon
+export async function switchAccount() {
+	const user = await currentUser()
+	if (!user) redirect('/sign-in')
+
+	const userId = user.id
+	const isAnon = user.publicMetadata?.isAnon === true
+
+	await clerkClient.users.updateUser(userId, {
+		publicMetadata: {
+			...user.publicMetadata,
+			isAnon: !isAnon,
+			originalId: !isAnon ? userId : null,
+		},
+	})
+
+	redirect('/profile')
+}
+
+export async function isUserAnonymous() {
+	const user = await currentUser()
+	if (!user) return false
+
+	return user.publicMetadata?.isAnon === true
 }

@@ -10,33 +10,25 @@ import {
 	FormControl,
 	FormField,
 	FormItem,
-	FormLabel,
 	FormMessage,
 } from '@/components/ui/form'
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from '@/components/ui/select'
 import { createPost } from '@/lib/actions/post.actions'
 import { redirect } from 'next/navigation'
 import { Textarea } from '../ui/textarea'
 
 const formSchema = z.object({
 	text: z.string().min(1, { message: 'Text is required' }),
-	anonym: z.boolean({ message: 'Anonymity is required' }),
+	anonym: z.boolean(),
 	parent_id: z.string(),
 })
 
-const PostForm = (parentId: { parentId: string }) => {
+const PostForm = ({ parentId, isAnon }: { parentId: string; isAnon: any }) => {
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
 			text: '',
-			anonym: true,
-			parent_id: parentId.parentId,
+			anonym: isAnon,
+			parent_id: parentId,
 		},
 	})
 
@@ -47,7 +39,7 @@ const PostForm = (parentId: { parentId: string }) => {
 			redirect('/')
 		} else {
 			form.reset()
-			redirect(`/posts/${parentId.parentId}`)
+			redirect(`/posts/${parentId}`)
 		}
 	}
 
@@ -65,32 +57,6 @@ const PostForm = (parentId: { parentId: string }) => {
 									{...field}
 									className='input'
 								/>
-							</FormControl>
-							<FormMessage />
-						</FormItem>
-					)}
-				/>
-
-				<FormField
-					control={form.control}
-					name='anonym'
-					render={({ field }) => (
-						<FormItem className='max-sm:w-full'>
-							<FormLabel>Anonymity</FormLabel>
-							<FormControl>
-								<Select
-									onValueChange={value => field.onChange(value === 'true')}
-									value={String(field.value)}
-									defaultValue={String(field.value)}
-								>
-									<SelectTrigger className='input'>
-										<SelectValue placeholder='Select the anonymity' />
-									</SelectTrigger>
-									<SelectContent>
-										<SelectItem value='true'>Anonymously</SelectItem>
-										<SelectItem value='false'>My Account</SelectItem>
-									</SelectContent>
-								</Select>
 							</FormControl>
 							<FormMessage />
 						</FormItem>

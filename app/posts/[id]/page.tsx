@@ -1,6 +1,7 @@
 import PostCard from '@/components/cards/PostCard'
 import Comment from '@/components/forms/Comment'
 import { getComments, getPostById } from '@/lib/actions/post.actions'
+import { isUserAnonymous } from '@/lib/actions/user.actions'
 import { currentUser } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 
@@ -26,7 +27,7 @@ const Page = async ({ params }: PostSessionPageProps) => {
 				/>
 			</div>
 			<div className='mt-7 '>
-				<Comment parentId={id} />
+				<Comment parentId={id} isAnon={await isUserAnonymous()} />
 			</div>
 
 			<div className='mt-10'>
