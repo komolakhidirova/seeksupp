@@ -45,7 +45,7 @@ const PostCardClient = ({
 	return (
 		<article
 			className={`flex w-full flex-col rounded-xl  ${
-				parentId !== 'no' ? 'px-0 xs:px-7' : 'bg-sidebar p-7'
+				parentId !== 'no' ? 'px-0 py-5 xs:px-7' : 'bg-sidebar p-7'
 			}`}
 		>
 			<div className='flex items-start justify-between'>
@@ -80,6 +80,7 @@ const PostCardClient = ({
 								id={id}
 								initialText={text}
 								onCancel={() => setIsEditing(false)}
+								currentUser={currentUser}
 							/>
 						) : (
 							<p className='mt-2 text-small-regular text-light-2'>{text}</p>
@@ -95,6 +96,7 @@ const PostCardClient = ({
 									id={id}
 									initialIsLiked={initialIsLiked}
 									initialLikesCount={initialLikesCount}
+									currentUser={currentUser}
 								/>
 
 								<Link href={`/posts/${id}`}>
@@ -107,7 +109,7 @@ const PostCardClient = ({
 									/>
 								</Link>
 
-								<ReportPost id={id} />
+								<ReportPost id={id} currentUser={currentUser} />
 							</div>
 							<p className='text-xs text-gray-400 mt-2'>
 								{editedAt
@@ -129,7 +131,7 @@ const PostCardClient = ({
 								className='cursor-pointer object-contain'
 								onClick={() => setIsEditing(true)}
 							/>
-							<DeletePost id={id} />
+							<DeletePost id={id} currentUser={currentUser} />
 						</>
 					)}
 				</div>

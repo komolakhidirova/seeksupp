@@ -5,14 +5,20 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
-const DeletePost = ({ id }: { id: string }) => {
+const DeletePost = ({
+	id,
+	currentUser,
+}: {
+	id: string
+	currentUser: string
+}) => {
 	const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
 	const router = useRouter()
 
 	const confirmDelete = async () => {
 		setShowDeleteConfirm(false)
 		try {
-			await deletePost(id)
+			await deletePost(id, currentUser)
 			router.refresh()
 		} catch (error) {
 			console.error('Failed to delete the post:', error)

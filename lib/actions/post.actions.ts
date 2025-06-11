@@ -3,6 +3,7 @@
 import { createSupabaseClient } from '@/lib/supabase'
 import clerkClient from '@clerk/clerk-sdk-node'
 import { auth } from '@clerk/nextjs/server'
+import { isUserAnonymous } from './user.actions'
 
 export const createPost = async (formData: CreatePost) => {
 	const { userId: author } = await auth()
@@ -102,8 +103,11 @@ const fetchAllChildPosts = async (postId: string): Promise<any[]> => {
 	return descendants
 }
 
-export const deletePost = async (postId: string, force = false) => {
-	const { userId } = await auth()
+export const deletePost = async (
+	postId: string,
+	userId: string,
+	force = false
+) => {
 	const supabase = createSupabaseClient()
 	const { data: post, error: fetchError } = await supabase
 		.from('posts')
@@ -131,8 +135,11 @@ export const deletePost = async (postId: string, force = false) => {
 	}
 }
 
-export const editPost = async (postId: string, text: string) => {
-	const { userId } = await auth()
+export const editPost = async (
+	postId: string,
+	text: string,
+	userId: string
+) => {
 	const supabase = createSupabaseClient()
 	const { data: post, error: fetchError } = await supabase
 		.from('posts')
@@ -175,10 +182,9 @@ export const getActivity = async (userId: string): Promise<ActivityItem[]> => {
 
 	const postIds = userPosts.map(post => post.id)
 
-	// Получаем ответы
 	const { data: repliesToUserPosts, error: repliesError } = await supabase
 		.from('posts')
-		.select('id, author, created_at, parent_id, anonym')
+		.select('id, author, created_at, parent_id')
 		.in('parent_id', postIds)
 		.neq('author', userId)
 
@@ -187,50 +193,71 @@ export const getActivity = async (userId: string): Promise<ActivityItem[]> => {
 	const repliesWithAuthors: ActivityItem[] = await Promise.all(
 		repliesToUserPosts.map(async reply => {
 			const user = await clerkClient.users.getUser(reply.author)
+			const author = {
+				id: user.id,
+				name: user.firstName ?? 'Unknown',
+				image: user.imageUrl,
+			}
+
 			return {
 				id: reply.id,
 				type: 'reply',
 				created_at: reply.created_at,
 				parent_id: reply.parent_id,
-				anonym: reply.anonym,
-				author: {
-					id: reply.author,
-					name: user.firstName,
-					image: user.imageUrl,
-				},
+				anonym: false,
+				author,
 			}
 		})
 	)
 
-	// Получаем лайки
-	const { data: allPostsWithLikes, error: likesError } = await supabase
+	const { data: postsData, error: postsError } = await supabase
 		.from('posts')
-		.select('id, likes')
+		.select('id, likes, reports')
 		.eq('author', userId)
 
-	if (likesError) throw likesError
+	if (postsError) throw postsError
 
 	const likesWithUsers: ActivityItem[] = []
+	const reportsWithUsers: ActivityItem[] = []
 
-	for (const post of allPostsWithLikes) {
+	for (const post of postsData) {
 		const likers = (post.likes || []).filter((id: string) => id !== userId)
+		const reporters = (post.reports || []).filter((id: string) => id !== userId)
 
 		for (const likerId of likers) {
 			const user = await clerkClient.users.getUser(likerId)
+			const author = {
+				id: user.id,
+				name: user.firstName ?? 'Unknown',
+				image: user.imageUrl,
+			}
+
 			likesWithUsers.push({
-				id: `${post.id}-${likerId}`,
+				id: `${post.id}-like-${Math.random()}`,
 				type: 'like',
 				post_id: post.id,
-				author: {
-					id: likerId,
-					name: user.firstName,
-					image: user.imageUrl,
-				},
+				author,
+			})
+		}
+
+		for (const reporterId of reporters) {
+			const user = await clerkClient.users.getUser(reporterId)
+			const author = {
+				id: user.id,
+				name: user.firstName ?? 'Unknown',
+				image: user.imageUrl,
+			}
+
+			reportsWithUsers.push({
+				id: `${post.id}-report-${Math.random()}`,
+				type: 'report',
+				post_id: post.id,
+				author,
 			})
 		}
 	}
 
-	return [...repliesWithAuthors, ...likesWithUsers]
+	return [...repliesWithAuthors, ...likesWithUsers, ...reportsWithUsers]
 }
 
 export const getSubscriptionPosts = async (userId: string) => {
@@ -270,10 +297,8 @@ export const getSubscriptionPosts = async (userId: string) => {
 	return postsWithAuthors
 }
 
-export const likePost = async (postId: string) => {
+export const likePost = async (postId: string, userId: string) => {
 	const supabase = createSupabaseClient()
-	const { userId } = await auth()
-	if (!userId) throw new Error('User not authenticated')
 
 	const { data: post, error: fetchError } = await supabase
 		.from('posts')
@@ -285,20 +310,31 @@ export const likePost = async (postId: string) => {
 	if (!post) throw new Error('Post not found')
 
 	const currentLikes = post.likes || []
-	if (!currentLikes.includes(userId)) {
+
+	const isAnon = await isUserAnonymous()
+
+	if (isAnon) {
+		const anonId = 'user_2yB8iaPI6naDeXyuQV2BRpaeetr'
 		const { error: updateError } = await supabase
 			.from('posts')
-			.update({ likes: [...currentLikes, userId] })
+			.update({ likes: [...currentLikes, anonId] })
 			.eq('id', postId)
 
 		if (updateError) throw new Error(updateError.message)
+	} else {
+		if (!currentLikes.includes(userId)) {
+			const { error: updateError } = await supabase
+				.from('posts')
+				.update({ likes: [...currentLikes, userId] })
+				.eq('id', postId)
+
+			if (updateError) throw new Error(updateError.message)
+		}
 	}
 }
 
-export const unlikePost = async (postId: string) => {
+export const unlikePost = async (postId: string, userId: string) => {
 	const supabase = createSupabaseClient()
-	const { userId } = await auth()
-	if (!userId) throw new Error('User not authenticated')
 
 	const { data: post, error: fetchError } = await supabase
 		.from('posts')
@@ -310,20 +346,36 @@ export const unlikePost = async (postId: string) => {
 	if (!post) throw new Error('Post not found')
 
 	const currentLikes = post.likes || []
-	if (currentLikes.includes(userId)) {
+	const isAnon = await isUserAnonymous()
+	const targetId = isAnon ? 'user_2yB8iaPI6naDeXyuQV2BRpaeetr' : userId
+
+	let updatedLikes: string[] = []
+
+	if (isAnon) {
+		let removed = false
+		updatedLikes = currentLikes.filter((id: string) => {
+			if (!removed && id === targetId) {
+				removed = true
+				return false
+			}
+			return true
+		})
+	} else {
+		updatedLikes = currentLikes.filter((id: string) => id !== targetId)
+	}
+
+	if (updatedLikes.length !== currentLikes.length) {
 		const { error: updateError } = await supabase
 			.from('posts')
-			.update({ likes: currentLikes.filter((id: string) => id !== userId) })
+			.update({ likes: updatedLikes })
 			.eq('id', postId)
 
 		if (updateError) throw new Error(updateError.message)
 	}
 }
 
-export const checkLike = async (postId: string) => {
+export const checkLike = async (postId: string, userId: string) => {
 	const supabase = createSupabaseClient()
-	const { userId } = await auth()
-	// if (!userId) throw new Error('User not authenticated')
 
 	const { data: post, error } = await supabase
 		.from('posts')
@@ -334,7 +386,11 @@ export const checkLike = async (postId: string) => {
 	if (error) throw new Error(error.message)
 	if (!post) return false
 
-	return (post.likes || []).includes(userId)
+	const currentLikes = post.likes || []
+	const isAnon = await isUserAnonymous()
+	const targetId = isAnon ? 'user_2yB8iaPI6naDeXyuQV2BRpaeetr' : userId
+
+	return currentLikes.includes(targetId)
 }
 
 export const getLikesCount = async (postId: string) => {
@@ -352,10 +408,8 @@ export const getLikesCount = async (postId: string) => {
 	return (post.likes || []).length
 }
 
-export const reportPost = async (postId: string) => {
+export const reportPost = async (postId: string, userId: string) => {
 	const supabase = createSupabaseClient()
-	const { userId } = await auth()
-	if (!userId) throw new Error('User not authenticated')
 
 	const { data: post, error: fetchError } = await supabase
 		.from('posts')
@@ -367,9 +421,17 @@ export const reportPost = async (postId: string) => {
 	if (!post) throw new Error('Post not found')
 
 	const currentReports = post.reports || []
-	if (currentReports.includes(userId)) return
+	const isAnon = await isUserAnonymous()
+	const reportId = isAnon ? 'user_2yB8iaPI6naDeXyuQV2BRpaeetr' : userId
 
-	const updatedReports = [...currentReports, userId]
+	let updatedReports = currentReports
+
+	if (isAnon) {
+		updatedReports = [...currentReports, reportId]
+	} else {
+		if (currentReports.includes(userId)) return
+		updatedReports = [...currentReports, userId]
+	}
 
 	const { error: updateError } = await supabase
 		.from('posts')
@@ -379,6 +441,6 @@ export const reportPost = async (postId: string) => {
 	if (updateError) throw new Error(updateError.message)
 
 	if (updatedReports.length >= 3) {
-		await deletePost(postId, true)
+		await deletePost(postId, userId, true)
 	}
 }

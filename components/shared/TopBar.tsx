@@ -12,7 +12,8 @@ const TopBar = async () => {
 					SeekSupp
 				</p>
 			</Link>
-			<div className='flex items-center gap-1'>
+			<div className='flex items-center gap-5'>
+				{/* <div>RU</div> */}
 				<div className='block'>
 					{(await isUserAnonymous()) ? (
 						<Image

@@ -4,13 +4,19 @@ import { reportPost } from '@/lib/actions/post.actions'
 import Image from 'next/image'
 import { useState } from 'react'
 
-const ReportPost = ({ id }: { id: string }) => {
+const ReportPost = ({
+	id,
+	currentUser,
+}: {
+	id: string
+	currentUser: string
+}) => {
 	const [showReportConfirm, setShowReportConfirm] = useState(false)
 
 	const confirmReport = async () => {
 		setShowReportConfirm(false)
 		try {
-			await reportPost(id)
+			await reportPost(id, currentUser)
 			alert('Thank you. This post has been reported.')
 		} catch (error) {
 			console.error('Failed to report the post:', error)

@@ -31,7 +31,7 @@ const PostCard = async ({
 	const comments = await getComments(id)
 
 	const [initialIsLiked, initialLikesCount] = await Promise.all([
-		checkLike(id),
+		checkLike(id, currentUser),
 		getLikesCount(id),
 	])
 

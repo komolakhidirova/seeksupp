@@ -8,19 +8,25 @@ interface Props {
 	id: string
 	initialIsLiked: boolean
 	initialLikesCount: number
+	currentUser: string
 }
 
-const LikePost = ({ id, initialIsLiked, initialLikesCount }: Props) => {
+const LikePost = ({
+	id,
+	initialIsLiked,
+	initialLikesCount,
+	currentUser,
+}: Props) => {
 	const [isLiked, setIsLiked] = useState(initialIsLiked)
 	const [likesCount, setLikesCount] = useState(initialLikesCount)
 
 	const handleLike = async () => {
 		try {
 			if (isLiked) {
-				await unlikePost(id)
+				await unlikePost(id, currentUser)
 				setLikesCount(prev => prev - 1)
 			} else {
-				await likePost(id)
+				await likePost(id, currentUser)
 				setLikesCount(prev => prev + 1)
 			}
 			setIsLiked(!isLiked)

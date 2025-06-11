@@ -49,7 +49,9 @@ const Page = async () => {
 										</span>{' '}
 										{item.type === 'reply'
 											? 'replied to your post'
-											: 'liked your post'}
+											: item.type === 'like'
+											? 'liked your post'
+											: 'reported your post'}
 									</p>
 								</article>
 							</Link>

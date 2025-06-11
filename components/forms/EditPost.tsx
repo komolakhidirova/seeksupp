@@ -8,16 +8,17 @@ interface Props {
 	id: string
 	initialText: string
 	onCancel: () => void
+	currentUser: string
 }
 
-const EditPost = ({ id, initialText, onCancel }: Props) => {
+const EditPost = ({ id, initialText, onCancel, currentUser }: Props) => {
 	const [editedText, setEditedText] = useState(initialText)
 	const router = useRouter()
 
 	const handleSave = async () => {
 		if (editedText !== initialText) {
 			try {
-				await editPost(id, editedText)
+				await editPost(id, editedText, currentUser)
 				router.refresh()
 			} catch (error) {
 				console.error('Failed to save post:', error)
