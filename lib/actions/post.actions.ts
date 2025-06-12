@@ -173,33 +173,39 @@ export const editPost = async (
 export const getActivity = async (userId: string): Promise<ActivityItem[]> => {
 	const supabase = createSupabaseClient()
 
-	// Получаем посты, созданные пользователем
+	// Получаем посты пользователя
 	const { data: userPosts, error: userPostsError } = await supabase
 		.from('posts')
 		.select('id')
 		.eq('author', userId)
 
 	if (userPostsError) throw userPostsError
-
 	const postIds = userPosts.map(post => post.id)
 
-	// Получаем ответы на посты пользователя (от других пользователей)
+	// Получаем ответы к постам пользователя
 	const { data: repliesToUserPosts, error: repliesError } = await supabase
 		.from('posts')
-		.select('id, author, created_at, parent_id')
+		.select('id, author, created_at, parent_id, anonym')
 		.in('parent_id', postIds)
 		.neq('author', userId)
 
 	if (repliesError) throw repliesError
 
-	// Загружаем данные авторов ответов
 	const repliesWithAuthors: ActivityItem[] = await Promise.all(
 		repliesToUserPosts.map(async reply => {
-			const user = await clerkClient.users.getUser(reply.author)
-			const author = {
-				id: user.id,
-				name: user.firstName ?? 'Unknown',
-				image: user.imageUrl,
+			let authorInfo = {
+				id: reply.author,
+				name: 'User',
+				image: '/assets/user-dark.svg',
+			}
+
+			if (!reply.anonym) {
+				const user = await clerkClient.users.getUser(reply.author)
+				authorInfo = {
+					id: user.id,
+					name: user.firstName ?? 'Unknown',
+					image: user.imageUrl,
+				}
 			}
 
 			return {
@@ -207,16 +213,16 @@ export const getActivity = async (userId: string): Promise<ActivityItem[]> => {
 				type: 'reply',
 				created_at: reply.created_at,
 				parent_id: reply.parent_id,
-				anonym: false,
-				author,
+				anonym: reply.anonym,
+				author: authorInfo,
 			}
 		})
 	)
 
-	// Получаем лайки на посты пользователя
+	// Получаем лайки к постам пользователя
 	const { data: likesData, error: likesError } = await supabase
 		.from('likes')
-		.select('user_id, post_id')
+		.select('post_id, user_id, created_at, anonym')
 		.in('post_id', postIds)
 		.neq('user_id', userId)
 
@@ -224,18 +230,28 @@ export const getActivity = async (userId: string): Promise<ActivityItem[]> => {
 
 	const likesWithUsers: ActivityItem[] = await Promise.all(
 		likesData.map(async like => {
-			const user = await clerkClient.users.getUser(like.user_id)
-			const author = {
-				id: user.id,
-				name: user.firstName ?? 'Unknown',
-				image: user.imageUrl,
+			let authorInfo = {
+				id: like.user_id,
+				name: 'User',
+				image: '/assets/user-dark.svg',
+			}
+
+			if (!like.anonym) {
+				const user = await clerkClient.users.getUser(like.user_id)
+				authorInfo = {
+					id: user.id,
+					name: user.firstName ?? 'Unknown',
+					image: user.imageUrl,
+				}
 			}
 
 			return {
 				id: `${like.post_id}-like-${like.user_id}`,
 				type: 'like',
+				created_at: like.created_at,
 				post_id: like.post_id,
-				author,
+				anonym: like.anonym,
+				author: authorInfo,
 			}
 		})
 	)
@@ -265,12 +281,26 @@ export const getActivity = async (userId: string): Promise<ActivityItem[]> => {
 				id: `${post.id}-report-${reporterId}`,
 				type: 'report',
 				post_id: post.id,
+				created_at: '', // Добавляем пустую дату, чтобы не было ошибки
 				author,
 			})
 		}
 	}
 
-	return [...repliesWithAuthors, ...likesWithUsers, ...reportsWithUsers]
+	// Объединяем все активности
+	const allActivities: ActivityItem[] = [
+		...reportsWithUsers,
+		...repliesWithAuthors,
+		...likesWithUsers,
+	]
+
+	// Сортируем: репорты первыми, остальные по created_at убыванию
+	return allActivities.sort((a, b) => {
+		if (a.type === 'report' && b.type !== 'report') return -1
+		if (a.type !== 'report' && b.type === 'report') return 1
+
+		return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+	})
 }
 
 export const getSubscriptionPosts = async (userId: string) => {

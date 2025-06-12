@@ -3,6 +3,7 @@
 import { formatDateString } from '@/lib/utils'
 import Image from 'next/image'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import DeletePost from '../forms/DeletePost'
 import EditPost from '../forms/EditPost'
@@ -41,6 +42,7 @@ const PostCardClient = ({
 	initialIsLiked,
 }: Props) => {
 	const [isEditing, setIsEditing] = useState(false)
+	const pathname = usePathname()
 
 	return (
 		<article
@@ -119,7 +121,7 @@ const PostCardClient = ({
 				</div>
 
 				<div className='flex gap-3 relative'>
-					{currentUser === authorId && !isEditing && (
+					{currentUser === authorId && !isEditing && pathname !== '/' && (
 						<>
 							<Image
 								src='/assets/edit.svg'

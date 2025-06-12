@@ -8,6 +8,7 @@
 type ActivityItem = {
 	id: string
 	type: 'reply' | 'like' | 'report'
+	created_at: string
 	post_id?: string
 	parent_id?: string
 	created_at?: string
