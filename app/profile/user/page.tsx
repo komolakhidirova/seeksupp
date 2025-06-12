@@ -14,7 +14,6 @@ const Page = () => {
 					/>
 					<div className='flex flex-col gap-2'>
 						<h1 className='font-bold text-2xl'>User</h1>
-						<p className='text-sm text-muted-foreground'>Email is hidden</p>
 					</div>
 				</div>
 			</section>

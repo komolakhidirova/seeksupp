@@ -98,7 +98,6 @@ const PostCardClient = ({
 									initialLikesCount={initialLikesCount}
 									currentUser={currentUser}
 								/>
-
 								<Link href={`/posts/${id}`}>
 									<Image
 										src='/assets/reply.svg'
@@ -108,7 +107,6 @@ const PostCardClient = ({
 										className='cursor-pointer object-contain'
 									/>
 								</Link>
-
 								<ReportPost id={id} currentUser={currentUser} />
 							</div>
 							<p className='text-xs text-gray-400 mt-2'>

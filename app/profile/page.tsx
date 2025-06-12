@@ -34,17 +34,16 @@ export default async function Page() {
 						<p className='text-sm text-muted-foreground'>
 							{user.emailAddresses?.[0]?.emailAddress}
 						</p>
+						<form action={switchAccount}>
+							<button
+								type='submit'
+								className='px-4 py-2 bg-primary text-white rounded cursor-pointer'
+							>
+								{isAnon ? 'My Account' : 'Anonym Account'}
+							</button>
+						</form>
 					</div>
 				</div>
-
-				<form action={switchAccount}>
-					<button
-						type='submit'
-						className='px-4 py-2 bg-primary text-white rounded cursor-pointer'
-					>
-						{isAnon ? 'My Account' : 'Anonym Account'}
-					</button>
-				</form>
 			</section>
 
 			<section className='mt-9 flex flex-col gap-10'>

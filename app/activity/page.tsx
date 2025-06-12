@@ -10,6 +10,34 @@ const Page = async () => {
 
 	const activity = await getActivity(user.id)
 
+	const getAuthorImage = (item: any) => {
+		if (item.anonym) return '/assets/user-dark.svg'
+		return item.author.image
+	}
+
+	const getAuthorName = (item: any) => {
+		if (item.anonym) return 'User'
+		return item.author.name
+	}
+
+	const getPostLink = (item: any) =>
+		item.type === 'reply'
+			? `/posts/${item.parent_id}`
+			: `/posts/${item.post_id}`
+
+	const getActivityText = (type: string) => {
+		switch (type) {
+			case 'reply':
+				return 'replied to your post'
+			case 'like':
+				return 'liked your post'
+			case 'report':
+				return 'reported your post'
+			default:
+				return ''
+		}
+	}
+
 	return (
 		<section>
 			<h1>Activity</h1>
@@ -17,23 +45,10 @@ const Page = async () => {
 				{activity.length > 0 ? (
 					<>
 						{activity.map(item => (
-							<Link
-								key={item.id}
-								href={
-									item.type === 'reply'
-										? `/posts/${item.parent_id}`
-										: `/posts/${item.post_id}`
-								}
-							>
+							<Link key={item.id} href={getPostLink(item)}>
 								<article className='activity-card flex items-center gap-3'>
 									<Image
-										src={
-											item.type === 'reply'
-												? !item.anonym
-													? item.author.image
-													: '/assets/user-dark.svg'
-												: item.author.image
-										}
+										src={getAuthorImage(item)}
 										alt='Profile Picture'
 										width={20}
 										height={20}
@@ -41,17 +56,9 @@ const Page = async () => {
 									/>
 									<p className='!text-small-regular text-light-1'>
 										<span className='mr-1 text-primary'>
-											{item.type === 'reply'
-												? !item.anonym
-													? item.author.name
-													: 'User'
-												: item.author.name}
-										</span>{' '}
-										{item.type === 'reply'
-											? 'replied to your post'
-											: item.type === 'like'
-											? 'liked your post'
-											: 'reported your post'}
+											{getAuthorName(item)}
+										</span>
+										{getActivityText(item.type)}
 									</p>
 								</article>
 							</Link>

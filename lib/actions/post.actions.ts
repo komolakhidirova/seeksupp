@@ -173,6 +173,7 @@ export const editPost = async (
 export const getActivity = async (userId: string): Promise<ActivityItem[]> => {
 	const supabase = createSupabaseClient()
 
+	// Получаем посты, созданные пользователем
 	const { data: userPosts, error: userPostsError } = await supabase
 		.from('posts')
 		.select('id')
@@ -182,6 +183,7 @@ export const getActivity = async (userId: string): Promise<ActivityItem[]> => {
 
 	const postIds = userPosts.map(post => post.id)
 
+	// Получаем ответы на посты пользователя (от других пользователей)
 	const { data: repliesToUserPosts, error: repliesError } = await supabase
 		.from('posts')
 		.select('id, author, created_at, parent_id')
@@ -190,6 +192,7 @@ export const getActivity = async (userId: string): Promise<ActivityItem[]> => {
 
 	if (repliesError) throw repliesError
 
+	// Загружаем данные авторов ответов
 	const repliesWithAuthors: ActivityItem[] = await Promise.all(
 		repliesToUserPosts.map(async reply => {
 			const user = await clerkClient.users.getUser(reply.author)
@@ -210,35 +213,45 @@ export const getActivity = async (userId: string): Promise<ActivityItem[]> => {
 		})
 	)
 
-	const { data: postsData, error: postsError } = await supabase
-		.from('posts')
-		.select('id, likes, reports')
-		.eq('author', userId)
+	// Получаем лайки на посты пользователя
+	const { data: likesData, error: likesError } = await supabase
+		.from('likes')
+		.select('user_id, post_id')
+		.in('post_id', postIds)
+		.neq('user_id', userId)
 
-	if (postsError) throw postsError
+	if (likesError) throw likesError
 
-	const likesWithUsers: ActivityItem[] = []
-	const reportsWithUsers: ActivityItem[] = []
-
-	for (const post of postsData) {
-		const likers = (post.likes || []).filter((id: string) => id !== userId)
-		const reporters = (post.reports || []).filter((id: string) => id !== userId)
-
-		for (const likerId of likers) {
-			const user = await clerkClient.users.getUser(likerId)
+	const likesWithUsers: ActivityItem[] = await Promise.all(
+		likesData.map(async like => {
+			const user = await clerkClient.users.getUser(like.user_id)
 			const author = {
 				id: user.id,
 				name: user.firstName ?? 'Unknown',
 				image: user.imageUrl,
 			}
 
-			likesWithUsers.push({
-				id: `${post.id}-like-${Math.random()}`,
+			return {
+				id: `${like.post_id}-like-${like.user_id}`,
 				type: 'like',
-				post_id: post.id,
+				post_id: like.post_id,
 				author,
-			})
-		}
+			}
+		})
+	)
+
+	// Получаем посты пользователя с полем reports
+	const { data: postsData, error: postsError } = await supabase
+		.from('posts')
+		.select('id, reports')
+		.eq('author', userId)
+
+	if (postsError) throw postsError
+
+	const reportsWithUsers: ActivityItem[] = []
+
+	for (const post of postsData) {
+		const reporters = (post.reports || []).filter((id: string) => id !== userId)
 
 		for (const reporterId of reporters) {
 			const user = await clerkClient.users.getUser(reporterId)
@@ -249,7 +262,7 @@ export const getActivity = async (userId: string): Promise<ActivityItem[]> => {
 			}
 
 			reportsWithUsers.push({
-				id: `${post.id}-report-${Math.random()}`,
+				id: `${post.id}-report-${reporterId}`,
 				type: 'report',
 				post_id: post.id,
 				author,
@@ -299,113 +312,73 @@ export const getSubscriptionPosts = async (userId: string) => {
 
 export const likePost = async (postId: string, userId: string) => {
 	const supabase = createSupabaseClient()
-
-	const { data: post, error: fetchError } = await supabase
-		.from('posts')
-		.select('likes')
-		.eq('id', postId)
-		.single()
-
-	if (fetchError) throw new Error(fetchError.message)
-	if (!post) throw new Error('Post not found')
-
-	const currentLikes = post.likes || []
-
 	const isAnon = await isUserAnonymous()
 
-	if (isAnon) {
-		const anonId = 'user_2yB8iaPI6naDeXyuQV2BRpaeetr'
-		const { error: updateError } = await supabase
-			.from('posts')
-			.update({ likes: [...currentLikes, anonId] })
-			.eq('id', postId)
+	const { data: existingLike, error: fetchError } = await supabase
+		.from('likes')
+		.select('id')
+		.eq('post_id', postId)
+		.eq('user_id', userId)
+		.single()
 
-		if (updateError) throw new Error(updateError.message)
-	} else {
-		if (!currentLikes.includes(userId)) {
-			const { error: updateError } = await supabase
-				.from('posts')
-				.update({ likes: [...currentLikes, userId] })
-				.eq('id', postId)
+	if (fetchError && fetchError.code !== 'PGRST116') {
+		// PGRST116 — not found, значит лайка еще нет, и это не ошибка
+		throw new Error(fetchError.message)
+	}
 
-			if (updateError) throw new Error(updateError.message)
-		}
+	if (!existingLike) {
+		const { error: insertError } = await supabase.from('likes').insert([
+			{
+				post_id: postId,
+				user_id: userId,
+				anonym: isAnon,
+			},
+		])
+
+		if (insertError) throw new Error(insertError.message)
 	}
 }
 
 export const unlikePost = async (postId: string, userId: string) => {
 	const supabase = createSupabaseClient()
 
-	const { data: post, error: fetchError } = await supabase
-		.from('posts')
-		.select('likes')
-		.eq('id', postId)
-		.single()
+	const { error } = await supabase
+		.from('likes')
+		.delete()
+		.eq('post_id', postId)
+		.eq('user_id', userId)
 
-	if (fetchError) throw new Error(fetchError.message)
-	if (!post) throw new Error('Post not found')
-
-	const currentLikes = post.likes || []
-	const isAnon = await isUserAnonymous()
-	const targetId = isAnon ? 'user_2yB8iaPI6naDeXyuQV2BRpaeetr' : userId
-
-	let updatedLikes: string[] = []
-
-	if (isAnon) {
-		let removed = false
-		updatedLikes = currentLikes.filter((id: string) => {
-			if (!removed && id === targetId) {
-				removed = true
-				return false
-			}
-			return true
-		})
-	} else {
-		updatedLikes = currentLikes.filter((id: string) => id !== targetId)
-	}
-
-	if (updatedLikes.length !== currentLikes.length) {
-		const { error: updateError } = await supabase
-			.from('posts')
-			.update({ likes: updatedLikes })
-			.eq('id', postId)
-
-		if (updateError) throw new Error(updateError.message)
-	}
+	if (error) throw new Error(error.message)
 }
 
 export const checkLike = async (postId: string, userId: string) => {
 	const supabase = createSupabaseClient()
 
-	const { data: post, error } = await supabase
-		.from('posts')
-		.select('likes')
-		.eq('id', postId)
+	const { data, error } = await supabase
+		.from('likes')
+		.select('id')
+		.eq('post_id', postId)
+		.eq('user_id', userId)
 		.single()
 
-	if (error) throw new Error(error.message)
-	if (!post) return false
+	if (error && error.code !== 'PGRST116') {
+		throw new Error(error.message)
+	}
 
-	const currentLikes = post.likes || []
-	const isAnon = await isUserAnonymous()
-	const targetId = isAnon ? 'user_2yB8iaPI6naDeXyuQV2BRpaeetr' : userId
-
-	return currentLikes.includes(targetId)
+	return !!data
 }
 
 export const getLikesCount = async (postId: string) => {
 	const supabase = createSupabaseClient()
 
-	const { data: post, error } = await supabase
-		.from('posts')
-		.select('likes')
-		.eq('id', postId)
-		.single()
+	const { count, error } = await supabase
+		.from('likes')
+		.select('*', { count: 'exact', head: true })
+		.eq('post_id', postId)
 
 	if (error) throw new Error(error.message)
-	if (!post) return 0
 
-	return (post.likes || []).length
+	return count || 0
 }
 
 export const reportPost = async (postId: string, userId: string) => {

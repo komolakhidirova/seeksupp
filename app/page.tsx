@@ -1,11 +1,15 @@
 import PostCard from '@/components/cards/PostCard'
 import { getAllPosts } from '@/lib/actions/post.actions'
+import { currentUser } from '@clerk/nextjs/server'
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 
 export const dynamic = 'force-dynamic'
 
 const Page = async () => {
 	const posts = await getAllPosts()
+	const user = await currentUser()
+	if (!user) redirect('/sign-in')
 
 	return (
 		<main>
@@ -17,7 +21,12 @@ const Page = async () => {
 			</div>
 			<section className='mt-9 flex flex-col gap-10'>
 				{posts.map(post => (
-					<PostCard key={post.id} {...post} authorId={post.author} />
+					<PostCard
+						key={post.id}
+						{...post}
+						authorId={post.author}
+						currentUser={user.id}
+					/>
 				))}
 			</section>
 		</main>

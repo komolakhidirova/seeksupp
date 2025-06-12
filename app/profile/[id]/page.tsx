@@ -18,7 +18,7 @@ interface PostSessionPageProps {
 
 const Page = async ({ params }: PostSessionPageProps) => {
 	const { id } = await params
-	const { firstName, imageUrl, emailAddresses } = await getUserById(id)
+	const { firstName, imageUrl } = await getUserById(id)
 	const posts = await getUserNoAnonPosts(id)
 
 	const user = await currentUser()
@@ -39,9 +39,6 @@ const Page = async ({ params }: PostSessionPageProps) => {
 					/>
 					<div className='flex flex-col gap-2'>
 						<h1 className='font-bold text-2xl'>{firstName}</h1>
-						<p className='text-sm text-muted-foreground'>
-							{emailAddresses[0].emailAddress}
-						</p>
 						<SubscribeUser
 							userId={id}
 							initialStatus={isSubscribed}
