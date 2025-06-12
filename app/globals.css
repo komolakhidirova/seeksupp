@@ -178,7 +178,7 @@ body {
 		@apply relative mt-2 w-0.5 grow rounded-full bg-gray-300;
 	}
 	.btn-signin {
-		@apply border border-black rounded-4xl px-4 py-2.5 text-sm font-semibold flex items-center gap-2 cursor-pointer;
+		@apply border rounded-4xl px-4 py-2.5 text-sm font-semibold flex items-center gap-2 cursor-pointer bg-primary text-white;
 	}
 	.companion-list {
 		@apply rounded-4xl border border-black px-7 pt-7 pb-10 max-lg:w-full bg-white;

@@ -1,6 +1,7 @@
 'use client'
 
 import { formatDateString } from '@/lib/utils'
+import { SignInButton } from '@clerk/nextjs'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -94,22 +95,33 @@ const PostCardClient = ({
 							} mt-5 flex flex-col gap-3`}
 						>
 							<div className='flex gap-3.5 relative'>
-								<LikePost
-									id={id}
-									initialIsLiked={initialIsLiked}
-									initialLikesCount={initialLikesCount}
-									currentUser={currentUser}
-								/>
-								<Link href={`/posts/${id}`}>
-									<Image
-										src='/assets/reply.svg'
-										alt='reply'
-										width={24}
-										height={24}
-										className='cursor-pointer object-contain'
-									/>
-								</Link>
-								<ReportPost id={id} currentUser={currentUser} />
+								{currentUser ? (
+									<>
+										<LikePost
+											id={id}
+											initialIsLiked={initialIsLiked}
+											initialLikesCount={initialLikesCount}
+											currentUser={currentUser}
+										/>
+										<Link href={`/posts/${id}`}>
+											<Image
+												src='/assets/reply.svg'
+												alt='reply'
+												width={24}
+												height={24}
+												className='cursor-pointer object-contain'
+											/>
+										</Link>
+										<ReportPost id={id} currentUser={currentUser} />
+									</>
+								) : (
+									<div className='flex items-center gap-2'>
+										<SignInButton>
+											<button className='btn-signin'>Sign In</button>
+										</SignInButton>
+										<p className='text-primary'>for actions</p>
+									</div>
+								)}
 							</div>
 							<p className='text-xs text-gray-400 mt-2'>
 								{editedAt
